@@ -1,6 +1,7 @@
 # This is a sample Python script.
 from playwright.sync_api import sync_playwright, Page
 
+import task_scheduler
 from actions import set_like_to_comment, add_question, look_at_article
 
 
@@ -14,21 +15,23 @@ def print_hi(name):
 
 
 def test_set_like(page: Page):
-    set_like_to_comment.set_like(page,
+    set_like_to_comment.run(page,
                                    "https://www.wildberries.ru/catalog/43809808/detail.aspx?targetUrl=MI",
                                    "Елена",
                                    "23 ноября 2022, 03:48",
-                                 True)
+                            True)
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
-        page = browser.new_page()
-
-        look_at_article.test(page)
-
-        page.pause()
+    task_scheduler.run()
+    # with sync_playwright() as p:
+    #     browser = p.chromium.launch(headless=False)
+    #     page = browser.new_page()
+    #
+    #     # look_at_article.test(page)
+    #
+    #
+    #     page.pause()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
