@@ -6,6 +6,11 @@ name = "pypi"
 [packages]
 sqlalchemy = "*"
 playwright = "*"
+smsactivate = "*"
+requests = "*"
+2captcha-python = "*"
+pillow = "*"
+psycopg2 = "*"
 
 [dev-packages]
 

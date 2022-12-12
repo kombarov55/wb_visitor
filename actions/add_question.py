@@ -5,8 +5,13 @@ from config import app_config
 
 
 def run(page: Page, url: str, text: str):
+    page.screenshot(path="./screenshots/before-url.png")
+
     page.goto(url)
+    page.screenshot(path="./screenshots/goto-url.png")
+
     page.wait_for_selector("li.user-activity__tab")
+    page.screenshot(path="./screenshots/goto-url.png")
     button = page.locator("li.user-activity__tab").nth(1)
     button.click()
     page.wait_for_selector("textarea#new-question")
