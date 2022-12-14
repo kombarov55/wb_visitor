@@ -8,7 +8,8 @@ from playwright.sync_api import sync_playwright
 from sqlalchemy.orm import Session
 
 import playwright_util
-from actions import set_like_to_comment, add_question, do_nothing
+from actions import set_like_to_comment, add_question, do_nothing, add_to_cart, remove_from_cart, add_to_favorites, \
+    remove_from_favorites
 from config import app_config, database
 from model.phone_number import PhoneNumberVO
 from model.task import TaskVO, TaskStatus, ActionType
@@ -95,4 +96,14 @@ def execute_task(task: TaskVO, phone_number: PhoneNumberVO):
             text_list = params["text_list"].split("\n")
             random_text = random.choice(text_list)
             add_question.run(page, url, random_text)
+        if task.action_type == ActionType.add_to_cart:
+            url = "https://www.wildberries.ru/catalog/{}/detail.aspx?targetUrl=XS".format(task.article)
+            add_to_cart.run(page, url)
+        if task.action_type == ActionType.remove_from_cart:
+            remove_from_cart.run(page, task.article)
+        if task.action_type == ActionType.add_to_favorites:
+            url = "https://www.wildberries.ru/catalog/{}/detail.aspx?targetUrl=XS".format(task.article)
+            add_to_favorites.run(page, url)
+        if task.action_type == ActionType.remove_from_favorites:
+            remove_from_favorites.run(page, task.article)
         return task

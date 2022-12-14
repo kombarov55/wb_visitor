@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 
+from config import database
 from model.task import TaskVO
 
 
@@ -14,3 +15,8 @@ def update(session: Session, vo: TaskVO):
     v.number_used = vo.number_used
     session.add(v)
     session.commit()
+
+
+def set_all_running_to_failed():
+    with database.engine.connect() as con:
+        con.execute("update task set status = 'FAILED' where status = 'RUNNING'")
