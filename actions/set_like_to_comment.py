@@ -6,7 +6,6 @@ from playwright_util import scroll_slowly_to_bottom
 
 
 def run(page: Page, url: str, name: str, date: str, is_like: bool):
-    playwright_util.load_cookies(page, "./cookies-auth.json")
     page.goto(url)
     page.wait_for_load_state("networkidle")
     scroll_slowly_to_bottom(page)

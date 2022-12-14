@@ -10,49 +10,64 @@ from sqlalchemy.orm import Session
 import playwright_util
 from actions import set_like_to_comment, add_question
 from config import app_config, database
+from model.phone_number import PhoneNumberVO
 from model.task import TaskVO, TaskStatus, ActionType
-from repository import task_repository
+from repository import task_repository, phone_number_repository
 
 
-def run():
-    with ThreadPoolExecutor(app_config.max_workers) as executor:
-        while True:
-            session = database.session_local()
+def tick(executor: ThreadPoolExecutor):
+    session = database.session_local()
 
-            tasks = find_tasks_ready_to_run(session)
+    tasks = find_tasks_ready_to_run(session)
 
-            for task in tasks:
-                executor.submit(execute_task, task.id)
-            session.commit()
-            session.close()
-            time.sleep(app_config.schedule_sleep_time_in_seconds)
+    if len(tasks) != 0:
+        print("found {} tasks to execute".format(len(tasks)))
 
+    for task in tasks:
+        executor.submit(process_task, task.id)
+    session.close()
 
 def find_tasks_ready_to_run(session: Session) -> list[TaskVO]:
     result = session.query(TaskVO).filter(TaskVO.status == TaskStatus.scheduled).filter(
         TaskVO.scheduled_datetime < datetime.now()).all()
-    print("found tasks to run: len={}".format(len(result)))
     return result
 
 
 def process_task(task_id: int):
-    session = database.session_local()
+    try:
+        session = database.session_local()
 
-    task = task_repository.find_by_id(session, task_id)
-    execute_task(task)
-    task.status = TaskStatus.success
-    task.end_datetime = datetime.now()
+        task = task_repository.find_by_id(session, task_id)
+        phone_number = phone_number_repository.get_number_for_task(task)
 
-    session.add(task)
-    session.commit()
-    session.close()
+        if phone_number is None:
+            print("all phone numbers are used for task_request={}".format(task.task_request_id))
+            task.status = TaskStatus.no_available_numbers
+            task.end_datetime = datetime.now()
+            task_repository.update(session, task)
+            return
+
+        task.status = TaskStatus.running
+        task.number_used = phone_number.number
+        task_repository.update(session, task)
+
+        execute_task(task, phone_number)
+
+        task.status = TaskStatus.success
+        task.end_datetime = datetime.now()
+        task_repository.update(session, task)
+
+        session.close()
+    except Exception as e:
+        print(str(e))
 
 
-def execute_task(task: TaskVO):
+def execute_task(task: TaskVO, phone_number: PhoneNumberVO):
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=app_config.headless)
         page = browser.new_page()
-        playwright_util.load_cookies(page, "../cookies-auth.json")
+
+        playwright_util.set_cookies(page, phone_number.cookies_json)
 
         params = json.loads(task.params_json)
         if task.action_type == ActionType.set_like_to_comment:

@@ -1,8 +1,9 @@
 # This is a sample Python script.
 from playwright.sync_api import Page
 
+import scheduler
 from config import database
-from scheduled import task_scheduler, activate_numbers_scheduler
+from scheduled import task_service, activate_numbers_service
 from actions import set_like_to_comment
 
 
@@ -26,7 +27,7 @@ def test_set_like(page: Page):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     database.base.metadata.create_all(bind=database.engine)
-    activate_numbers_scheduler.run()
+    scheduler.run()
     # with sync_playwright() as p:
     #     browser = p.chromium.launch(headless=False)
     #     page = browser.new_page()

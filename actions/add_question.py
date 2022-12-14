@@ -22,10 +22,3 @@ def run(page: Page, url: str, text: str):
         print("MOCK add question {}".format(text))
     else:
         page.click("button.textarea-block__submit")
-
-
-def test(page: Page):
-    playwright_util.load_cookies(page, "./cookies-auth.json")
-    run(page,
-                 "https://www.wildberries.ru/catalog/39769256/detail.aspx?targetUrl=XS",
-                 "Сколько МП камера?")

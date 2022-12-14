@@ -17,13 +17,16 @@ def run(page: Page, id: str, number: str):
 
     page.click("button#requestCode")
 
-    time.sleep(2)
-    src = page.locator("img.form-block__captcha-img").get_attribute("src")
-    playwright_util.download_img_base64(src, "captcha.jpeg")
-    captcha_text = solve_captcha.request_solving("captcha.jpeg")
-
-    page.type("input#smsCaptchaCode", captcha_text, delay=800)
-    page.click("button.login__btn")
+    while True:
+        time.sleep(2)
+        src = page.locator("img.form-block__captcha-img").get_attribute("src")
+        playwright_util.download_img_base64(src, "captcha.jpeg")
+        captcha_text = solve_captcha.request_solving("captcha.jpeg")
+        page.type("input#smsCaptchaCode", captcha_text)
+        page.click("button.login__btn")
+        time.sleep(1)
+        if not page.get_by_text("Вы исчерпали все попытки запроса кода. Попробуйте позже").is_visible():
+            break
 
     code = sms_activate.receive_code(id)
     page.type("input.j-input-confirm-code", code, delay=600)

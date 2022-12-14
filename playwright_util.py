@@ -34,6 +34,12 @@ def copy_cookies(page: Page, path: str):
         file.write(json.dumps(cookies))
 
 
+def set_cookies(page: Page, cookies_json: str):
+    cookies = json.loads(cookies_json)
+    page.context.clear_cookies()
+    page.context.add_cookies(cookies)
+
+
 def load_cookies(page: Page, path: str):
     with open(path) as file:
         s = file.read()
