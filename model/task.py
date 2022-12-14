@@ -15,6 +15,7 @@ class TaskVO(database.base):
     end_datetime = Column(DateTime)
     number_used = Column(String)
     status = Column(String)
+    error_msg = Column(String)
 
 
 class TaskStatus:
@@ -22,6 +23,7 @@ class TaskStatus:
     running = "RUNNING"
     no_available_numbers = "NO_AVAILABLE_NUMBERS"
     success = "SUCCESS"
+    failed = "FAILED"
 
 
 class ActionType:

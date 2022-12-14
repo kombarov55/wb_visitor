@@ -27,6 +27,7 @@ def tick(executor: ThreadPoolExecutor):
         executor.submit(process_task, task.id)
     session.close()
 
+
 def find_tasks_ready_to_run(session: Session) -> list[TaskVO]:
     result = session.query(TaskVO).filter(TaskVO.status == TaskStatus.scheduled).filter(
         TaskVO.scheduled_datetime < datetime.now()).all()
@@ -34,32 +35,39 @@ def find_tasks_ready_to_run(session: Session) -> list[TaskVO]:
 
 
 def process_task(task_id: int):
-    try:
-        session = database.session_local()
+    session = database.session_local()
 
-        task = task_repository.find_by_id(session, task_id)
+    task = task_repository.find_by_id(session, task_id)
+
+    if app_config.unique_numbers:
         phone_number = phone_number_repository.get_number_for_task(task)
+    else:
+        phone_number = phone_number_repository.get_any_number()
 
-        if phone_number is None:
-            print("all phone numbers are used for task_request={}".format(task.task_request_id))
-            task.status = TaskStatus.no_available_numbers
-            task.end_datetime = datetime.now()
-            task_repository.update(session, task)
-            return
-
-        task.status = TaskStatus.running
-        task.number_used = phone_number.number
+    if phone_number is None:
+        print("no available numbers for task_request={}".format(task.task_request_id))
+        task.status = TaskStatus.no_available_numbers
+        task.end_datetime = datetime.now()
         task_repository.update(session, task)
+        return
 
+    task.status = TaskStatus.running
+    task.number_used = phone_number.number
+    task_repository.update(session, task)
+
+    try:
         execute_task(task, phone_number)
-
         task.status = TaskStatus.success
         task.end_datetime = datetime.now()
         task_repository.update(session, task)
-
-        session.close()
     except Exception as e:
         print(str(e))
+        task.status = TaskStatus.failed
+        task.error_msg = str(e)
+        task.end_datetime = datetime.now()
+        task_repository.update(session, task)
+
+    session.close()
 
 
 def execute_task(task: TaskVO, phone_number: PhoneNumberVO):
@@ -86,4 +94,3 @@ def execute_task(task: TaskVO, phone_number: PhoneNumberVO):
             random_text = random.choice(text_list)
             add_question.run(page, url, random_text)
         return task
-

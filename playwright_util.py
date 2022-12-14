@@ -20,7 +20,7 @@ def scroll_to_y(page: Page, dest_y: int, delta: int = 500, interval_between_scro
 
 
 def scroll_slowly_to_bottom(page: Page):
-    scroll_to_y(page, page.evaluate("() => document.body.scrollHeight;"), 500, 0.1)
+    scroll_to_y(page, page.evaluate("() => document.body.scrollHeight;"), 500, 0.5)
 
 
 def get_cookies_json(page: Page):
