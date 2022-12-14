@@ -8,7 +8,7 @@ from playwright.sync_api import sync_playwright
 from sqlalchemy.orm import Session
 
 import playwright_util
-from actions import set_like_to_comment, add_question
+from actions import set_like_to_comment, add_question, do_nothing
 from config import app_config, database
 from model.phone_number import PhoneNumberVO
 from model.task import TaskVO, TaskStatus, ActionType
@@ -76,6 +76,8 @@ def execute_task(task: TaskVO, phone_number: PhoneNumberVO):
         page = browser.new_page()
 
         playwright_util.set_cookies(page, phone_number.cookies_json)
+
+        do_nothing.run(page)
 
         params = json.loads(task.params_json)
         if task.action_type == ActionType.set_like_to_comment:

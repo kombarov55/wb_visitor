@@ -8,19 +8,27 @@ from PIL import Image
 from playwright.sync_api import Page, Locator
 
 
-def scroll_to_y(page: Page, dest_y: int, delta: int = 500, interval_between_scrolls: float = 0.1):
+def scroll_to_y(page: Page, dest_y: int, delta: int = 10, interval_between_scrolls: float = 0.05, delay_every_y: int = 9999999, delay_in_seconds: int = 2):
     current_height = 0
+
+    delay_y = 0
 
     while True:
         page.evaluate("() => window.scrollTo(0, {});".format(current_height + delta))
         current_height += delta
+
+        delay_y += delta
+        if delay_y >= delay_every_y:
+            time.sleep(delay_in_seconds)
+            delay_y = 0
+
         time.sleep(interval_between_scrolls)
         if current_height > dest_y:
             break
 
 
 def scroll_slowly_to_bottom(page: Page):
-    scroll_to_y(page, page.evaluate("() => document.body.scrollHeight;"), 500, 0.5)
+    scroll_to_y(page, page.evaluate("() => document.body.scrollHeight;"), 10, 0.01)
 
 
 def get_cookies_json(page: Page):
@@ -50,7 +58,7 @@ def load_cookies(page: Page, path: str):
 
 def scroll_to_element(page: Page, locator: Locator):
     y = locator.bounding_box()["y"]
-    scroll_to_y(page=page, dest_y=y, delta=15, interval_between_scrolls=0.01)
+    scroll_to_y(page=page, dest_y=y, delta=4, interval_between_scrolls=0.01, delay_every_y=500, delay_in_seconds=1)
 
 
 def get_query_param(url, param):
