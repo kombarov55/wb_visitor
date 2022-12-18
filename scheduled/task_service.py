@@ -29,7 +29,7 @@ def tick(executor: ThreadPoolExecutor):
     session.close()
 
 
-def find_tasks_ready_to_run(session: Session) -> list[TaskVO]:
+def find_tasks_ready_to_run(session: Session):
     result = session.query(TaskVO).filter(TaskVO.status == TaskStatus.scheduled).filter(
         TaskVO.scheduled_datetime < datetime.now()).all()
     return result
