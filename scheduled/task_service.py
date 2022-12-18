@@ -29,7 +29,7 @@ def tick(executor: ThreadPoolExecutor):
         print("found {} tasks to execute".format(len(tasks_to_execute)))
 
     for task in tasks_to_execute:
-        future = executor.submit(process_task, task.id)
+        future = executor.submit(wrap_process_task, task.id)
 
     session.close()
 
@@ -38,6 +38,14 @@ def find_tasks_ready_to_run(session: Session):
     result = session.query(TaskVO).filter(TaskVO.status == TaskStatus.scheduled).filter(
         TaskVO.scheduled_datetime < datetime.now()).all()
     return result
+
+
+def wrap_process_task(task_id: int):
+    try:
+        process_task(task_id)
+    except Exception as e:
+        print("failed to process task id={}".format(task_id))
+        print(str(e))
 
 
 def process_task(task_id: int):
