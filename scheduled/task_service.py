@@ -21,11 +21,16 @@ def tick(executor: ThreadPoolExecutor):
 
     tasks = find_tasks_ready_to_run(session)
 
-    if len(tasks) != 0:
-        print("found {} tasks to execute".format(len(tasks)))
+    running_tasks = task_repository.count_running_tasks()
+    available_workers = app_config.max_workers - running_tasks
+    tasks_to_execute = tasks[0:available_workers]
 
-    for task in tasks:
-        executor.submit(process_task, task.id)
+    if len(tasks_to_execute) != 0:
+        print("found {} tasks to execute".format(len(tasks_to_execute)))
+
+    for task in tasks_to_execute:
+        future = executor.submit(process_task, task.id)
+
     session.close()
 
 

@@ -20,3 +20,15 @@ def update(session: Session, vo: TaskVO):
 def set_all_running_to_failed():
     with database.engine.connect() as con:
         con.execute("update task set status = 'FAILED' where status = 'RUNNING'")
+
+
+def count_running_tasks():
+    with database.engine.connect() as con:
+        rows = con.execute("select count(*) from task where status = 'RUNNING'")
+        result = []
+        for row in rows:
+            result.append(row[0])
+        if len(result) == 0:
+            return None
+        else:
+            return result[0]
