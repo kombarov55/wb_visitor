@@ -56,12 +56,16 @@ def process_task(task_id: int):
     task.number_used = phone_number.number
     task_repository.update(session, task)
 
+    print("executing task id={} {} {}".format(task.id, task.action_type, task.article))
+
     try:
         execute_task(task, phone_number)
         task.status = TaskStatus.success
+        print("task success id={} {} {}".format(task.id, task.action_type, task.article))
         task.end_datetime = datetime.now()
         task_repository.update(session, task)
     except Exception as e:
+        print("task failed id={} {} {}".format(task.id, task.action_type, task.article))
         print(str(e))
         task.status = TaskStatus.failed
         task.error_msg = str(e)

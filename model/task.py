@@ -15,7 +15,6 @@ class TaskVO(database.base):
     end_datetime = Column(DateTime)
     number_used = Column(String)
     status = Column(String)
-    error_msg = Column(String)
 
 
 class TaskStatus:

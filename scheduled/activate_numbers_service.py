@@ -9,16 +9,20 @@ from repository import phone_number_repository
 
 
 def tick(executor: ThreadPoolExecutor):
-    session = database.session_local()
-    xs = phone_number_repository.find_just_received(session)
+    with database.session_local() as session:
+        xs = phone_number_repository.find_just_received(session)
 
-    if len(xs) != 0:
-        print("found {} numbers to activate".format(len(xs)))
-        executor.submit(wrap_execute, xs)
+        if len(xs) != 0:
+            print("found {} numbers to activate".format(len(xs)))
+            executor.submit(wrap_execute, xs)
 
-    session.close()
 
 def wrap_execute(xs):
+    for x in xs:
+        with database.session_local() as session:
+            x.status = PhoneNumberStatus.activating
+            phone_number_repository.update(session, x)
+
     for vo in xs:
         try:
             execute(vo)
@@ -28,8 +32,6 @@ def wrap_execute(xs):
 
 def execute(vo: PhoneNumberVO):
     session = database.session_local()
-    vo.status = PhoneNumberStatus.activating
-    phone_number_repository.update(session, vo)
 
     with sync_playwright() as p:
         page = p.chromium.launch(headless=app_config.headless).new_page()
