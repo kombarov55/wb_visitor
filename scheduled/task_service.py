@@ -43,11 +43,12 @@ def find_tasks_ready_to_run(session: Session):
 def process_task(task_id: int):
     print("start processing task id={}".format(task_id))
     session = database.session_local()
-
+    print("acquire session task_id={}".format(task_id))
     task = task_repository.find_by_id(session, task_id)
     print("found task id={}".format(task_id))
 
     if app_config.unique_numbers:
+        print("getting unqiue number task_id={}".format(task_id))
         phone_number = phone_number_repository.get_number_for_task(task)
     else:
         phone_number = phone_number_repository.get_any_number()
@@ -61,6 +62,7 @@ def process_task(task_id: int):
         task_repository.update(session, task)
         return
 
+    print("settings running status for id={}".format(task_id))
     task.status = TaskStatus.running
     task.number_used = phone_number.number
     task_repository.update(session, task)
