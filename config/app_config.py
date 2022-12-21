@@ -1,6 +1,6 @@
 mock = False
 schedule_sleep_time_in_seconds = 5
-headless = False
+headless = True
 max_workers = 10
 max_workers_for_sms = 3
 sms_activate_key = "44009Adc5f856793db4A6bAe6d7e37bd"
