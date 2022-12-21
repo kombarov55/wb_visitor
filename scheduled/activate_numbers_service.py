@@ -55,9 +55,6 @@ def execute(vo: PhoneNumberVO):
                 browser = p.chromium.launch(headless=app_config.headless)
 
             page = browser.new_page()
-            page.goto("https://httpbin.org/ip")
-            print("ip check: ")
-            print(page.text_content("*"))
             cookies_json = receive_cookies_for_new_number.run_v2(page, ext_id=vo.ext_id, number=vo.number)
 
         vo.cookies_json = cookies_json
