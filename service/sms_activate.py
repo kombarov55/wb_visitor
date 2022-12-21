@@ -1,5 +1,6 @@
 import time
 
+from playwright.sync_api import Page
 from smsactivate.api import SMSActivateAPI
 
 from config import app_config
@@ -14,6 +15,8 @@ def is_enough_money():
 
 
 def receive_code(id: str):
+    total_secs_spent = 0
+
     while True:
         rs = sa.getStatus(id=id)
         print(rs)
@@ -23,11 +26,15 @@ def receive_code(id: str):
         if not received:
             print("sms is not received yet")
             time.sleep(3)
+            total_secs_spent += 3
         else:
             code = rs.split(":")[1]
             print("sms received. code={}".format(code))
 
             return code
+
+        if total_secs_spent > 60:
+            return None
 
 
 def is_code_received(id: str):

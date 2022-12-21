@@ -5,10 +5,26 @@ from model.phone_number import PhoneNumberVO, PhoneNumberStatus
 from model.task import TaskVO
 
 
+def find_by_id(session: Session, id: int):
+    return session.query(PhoneNumberVO).filter(PhoneNumberVO.id == id).first()
+
+
 def find_just_received(session: Session):
     return session.query(PhoneNumberVO)\
         .filter(PhoneNumberVO.status == PhoneNumberStatus.just_received)\
         .all()
+
+
+def count_activating():
+    with database.engine.connect() as con:
+        rows = con.execute("select count(*) from phone_number where status = 'ACTIVATING'")
+        result = []
+        for row in rows:
+            result.append(row[0])
+        if len(result) == 0:
+            return None
+        else:
+            return int(result[0])
 
 
 def update(session: Session, vo: PhoneNumberVO):
@@ -67,3 +83,9 @@ def extract_single_number(rows):
     else:
         return result[0]
 
+
+def set_status(session: Session, id: int, status: str):
+    vo = find_by_id(session, id)
+    vo.status = status
+    session.add(vo)
+    session.commit()
