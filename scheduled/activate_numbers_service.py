@@ -1,5 +1,7 @@
 import datetime
+import uuid
 from concurrent.futures import ThreadPoolExecutor
+from uuid import uuid4
 
 from playwright.sync_api import sync_playwright, Page, Playwright
 
@@ -39,8 +41,8 @@ def execute(vo: PhoneNumberVO):
     proxy = proxy_repository.get_random_proxy()
     print("got random proxy ip={} uname={} pwd={}".format(proxy.ip, proxy.username, proxy.password))
 
-    try:
-        with sync_playwright() as p:
+    with sync_playwright() as p:
+        try:
             if app_config.use_proxy:
                 browser = p.chromium.launch(
                     headless=app_config.headless,
@@ -57,19 +59,21 @@ def execute(vo: PhoneNumberVO):
             page = browser.new_page()
             cookies_json = receive_cookies_for_new_number.run_v2(page, ext_id=vo.ext_id, number=vo.number)
 
-        vo.cookies_json = cookies_json
-        vo.status = PhoneNumberStatus.activated
-        vo.status_change_datetime = datetime.datetime.now()
-        phone_number_repository.update(session, vo)
-        print("saved cookies for number={}".format(vo.number))
-        proxy_repository.update_proxy_after_auth(session, proxy)
+            vo.cookies_json = cookies_json
+            vo.status = PhoneNumberStatus.activated
+            vo.status_change_datetime = datetime.datetime.now()
+            phone_number_repository.update(session, vo)
+            print("saved cookies for number={}".format(vo.number))
+            proxy_repository.update_proxy_after_auth(session, proxy)
 
-        session.commit()
-        session.close()
-    except CannotResolveCaptchaException as e:
-        print("probably blocked proxy ip={}".format(proxy.ip))
-        proxy_repository.update_proxy_after_failed_auth(session, proxy)
-        phone_number_repository.set_status(session, vo.id, PhoneNumberStatus.just_received)
-    except Exception as e:
-        print(str(e))
-        phone_number_repository.set_status(session, vo.id, PhoneNumberStatus.just_received)
+            session.commit()
+            session.close()
+        except CannotResolveCaptchaException as e:
+            print("probably blocked proxy ip={}".format(proxy.ip))
+            proxy_repository.update_proxy_after_failed_auth(session, proxy)
+            phone_number_repository.set_status(session, vo.id, PhoneNumberStatus.just_received)
+        except Exception as e:
+            print(str(e))
+            if page is not None:
+                page.screenshot(path="screenshots/{}.png".format(str(uuid.uuid4())))
+            phone_number_repository.set_status(session, vo.id, PhoneNumberStatus.just_received)

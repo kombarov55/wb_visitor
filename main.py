@@ -1,4 +1,6 @@
 # This is a sample Python script.
+import os
+
 from playwright.sync_api import Page
 
 import scheduler
@@ -25,8 +27,16 @@ def test_set_like(page: Page):
                             True)
 
 
+def create_missing_dirs():
+    if not os.path.exists("screenshots"):
+        print("creating dir screenshots/")
+        os.makedirs("./screenshots", exist_ok=True)
+
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
+    create_missing_dirs()
+
     database.base.metadata.create_all(bind=database.engine)
     task_repository.set_all_running_to_failed()
     phone_number_repository.set_all_activating_to_just_received()
