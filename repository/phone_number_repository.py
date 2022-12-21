@@ -33,6 +33,7 @@ def update(session: Session, vo: PhoneNumberVO):
     v.number = vo.number
     v.cookies_json = vo.cookies_json
     v.status = vo.status
+    v.status_change_datetime = vo.status_change_datetime
 
     session.add(v)
     session.commit()
@@ -89,3 +90,8 @@ def set_status(session: Session, id: int, status: str):
     vo.status = status
     session.add(vo)
     session.commit()
+
+
+def set_all_activating_to_just_received():
+    with database.engine.connect() as con:
+        con.execute("update phone_number set status='JUST_RECEIVED' where status = 'ACTIVATING'")

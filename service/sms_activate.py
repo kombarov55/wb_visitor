@@ -14,7 +14,7 @@ def is_enough_money():
     return money > 0
 
 
-def receive_code(id: str):
+def receive_code(id: str, page: Page):
     total_secs_spent = 0
 
     while True:
@@ -33,7 +33,7 @@ def receive_code(id: str):
 
             return code
 
-        if total_secs_spent > 60:
+        if total_secs_spent > 60 or page.get_by_text("Запросить код повторно").count() == 1:
             return None
 
 

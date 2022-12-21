@@ -2,7 +2,7 @@ import base64
 import io
 
 from PIL import Image
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, Page
 from smsactivate.api import SMSActivateAPI
 
 import playwright_util
@@ -35,6 +35,10 @@ def test_remove_from_cart(page):
     remove_from_cart.run(page, "40193383")
 
 
+def pw_sandbox(page: Page):
+    print("debug")
+    page.pause()
+
 
 def load_proxy():
     s = """176.103.82.169:3875:user61433:8421d9
@@ -58,8 +62,9 @@ def load_proxy():
 
 
 if __name__ == '__main__':
-    # with sync_playwright() as p:
-    #     page = p.chromium.launch(headless=False).new_page()
+    with sync_playwright() as p:
+        page = p.chromium.launch(headless=False).new_page()
+        pw_sandbox(page)
     #     playwright_util.load_cookies(page, "cookies-auth.json")
     #     test_remove_from_cart(page)
     load_proxy()

@@ -3,7 +3,7 @@ from playwright.sync_api import Page
 
 import scheduler
 from config import database
-from repository import task_repository
+from repository import task_repository, phone_number_repository
 from scheduled import task_service, activate_numbers_service
 from actions import set_like_to_comment
 
@@ -29,6 +29,7 @@ def test_set_like(page: Page):
 if __name__ == '__main__':
     database.base.metadata.create_all(bind=database.engine)
     task_repository.set_all_running_to_failed()
+    phone_number_repository.set_all_activating_to_just_received()
     scheduler.run()
     # with sync_playwright() as p:
     #     browser = p.chromium.launch(headless=False)

@@ -10,7 +10,9 @@ class PhoneNumberVO(database.base):
     ext_id = Column(String)
     number = Column(String)
     cookies_json = Column(String)
-    status = Column(String)
+    status = Column(String, index=True)
+    received_datetime = Column(DateTime, index=True)
+    status_change_datetime = Column(DateTime, index=True)
 
 
 class PhoneNumberStatus:

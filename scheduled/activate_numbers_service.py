@@ -1,3 +1,4 @@
+import datetime
 from concurrent.futures import ThreadPoolExecutor
 
 from playwright.sync_api import sync_playwright, Page, Playwright
@@ -25,6 +26,7 @@ def tick(executor: ThreadPoolExecutor):
             print("found {} numbers to activate".format(amount))
             for x in xs[0:amount]:
                 x.status = PhoneNumberStatus.activating
+                x.status_change_datetime = datetime.datetime.now()
                 phone_number_repository.update(session, x)
 
                 executor.submit(execute, x)
@@ -56,10 +58,11 @@ def execute(vo: PhoneNumberVO):
             page.goto("https://httpbin.org/ip")
             print("ip check: ")
             print(page.text_content("*"))
-            cookies_json = receive_cookies_for_new_number.run(page, id=vo.ext_id, number=vo.number)
+            cookies_json = receive_cookies_for_new_number.run_v2(page, ext_id=vo.ext_id, number=vo.number)
 
         vo.cookies_json = cookies_json
         vo.status = PhoneNumberStatus.activated
+        vo.status_change_datetime = datetime.datetime.now()
         phone_number_repository.update(session, vo)
         print("saved cookies for number={}".format(vo.number))
         proxy_repository.update_proxy_after_auth(session, proxy)

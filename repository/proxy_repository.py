@@ -51,10 +51,13 @@ def get_random_proxy():
 
 def update_proxy_after_auth(session: Session, proxy: ProxyVO):
     vo = session.query(ProxyVO).filter(ProxyVO.id == proxy.id).first()
-    vo.last_time_authenticated = datetime.now()
+    vo.last_authenticated_datetime = datetime.now()
+    if vo.times_used_for_auth is None:
+        vo.times_used_for_auth = 0
     vo.times_used_for_auth += 1
     session.add(vo)
     session.commit()
+    print("updated use of proxy: times_user_for_auth={} last_authenticated_datetime={}".format(vo.times_used_for_auth, vo.last_authenticated_datetime))
 
 
 def update_proxy_after_failed_auth(session: Session, proxy: ProxyVO):
