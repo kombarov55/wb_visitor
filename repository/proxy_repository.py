@@ -49,6 +49,22 @@ def get_random_proxy():
         return result[0]
 
 
+def update_proxy_after_auth(session: Session, proxy: ProxyVO):
+    vo = session.query(ProxyVO).filter(ProxyVO.id == proxy.id).first()
+    vo.last_time_authenticated = datetime.now()
+    vo.times_used_for_auth += 1
+    session.add(vo)
+    session.commit()
+
+
+def update_proxy_after_failed_auth(session: Session, proxy: ProxyVO):
+    vo = session.query(ProxyVO).filter(ProxyVO.id == proxy.id).first()
+    vo.auth_blocked_datetime = datetime.now()
+    session.add(vo)
+    session.commit()
+
+
+
 def delete(id: int):
     with database.engine.connect() as con:
         con.execute("delete from proxy where id={}".format(id))

@@ -1,6 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor
 
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, Page, Playwright
 
 from actions import receive_cookies_for_new_number
 from config import database, app_config
@@ -39,7 +39,6 @@ def execute(vo: PhoneNumberVO):
 
     try:
         with sync_playwright() as p:
-
             if app_config.use_proxy:
                 browser = p.chromium.launch(
                     headless=app_config.headless,
@@ -62,12 +61,14 @@ def execute(vo: PhoneNumberVO):
         vo.cookies_json = cookies_json
         vo.status = PhoneNumberStatus.activated
         phone_number_repository.update(session, vo)
+        print("saved cookies for number={}".format(vo.number))
+        proxy_repository.update_proxy_after_auth(session, proxy)
 
         session.commit()
         session.close()
     except CannotResolveCaptchaException as e:
         print("probably blocked proxy ip={}".format(proxy.ip))
-        proxy_repository.set_auth_blocked_datetime(proxy.id)
+        proxy_repository.update_proxy_after_failed_auth(session, proxy)
         phone_number_repository.set_status(session, vo.id, PhoneNumberStatus.just_received)
     except Exception as e:
         print(str(e))

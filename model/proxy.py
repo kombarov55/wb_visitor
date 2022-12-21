@@ -12,3 +12,5 @@ class ProxyVO(database.base):
     password = Column(String)
     created_datetime = Column(DateTime)
     auth_blocked_datetime = Column(DateTime)
+    times_used_for_auth = Column(Integer)
+    last_time_authenticated = Column(DateTime)
