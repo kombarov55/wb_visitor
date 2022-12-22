@@ -27,8 +27,32 @@ def scroll_to_y(page: Page, dest_y: int, delta: int = 10, interval_between_scrol
             break
 
 
+def scroll_until_predicate(page: Page, predicate):
+    current_height = 0
+
+    window_height = page.evaluate("() => document.body.scrollHeight;")
+    delta = 400
+    interval_between_scrolls = 0.1
+
+    while True:
+        next_y = current_height + delta
+
+        if next_y >= window_height:
+            return False
+
+        page.evaluate("() => window.scrollTo(0, {});".format(next_y))
+        current_height = next_y
+        window_height = page.evaluate("() => document.body.scrollHeight;")
+        time.sleep(interval_between_scrolls)
+
+        found = predicate(page)
+
+        if found:
+            return True
+
+
 def scroll_slowly_to_bottom(page: Page):
-    scroll_to_y(page, page.evaluate("() => document.body.scrollHeight;"), 10, 0.01)
+    scroll_to_y(page, page.evaluate("() => document.body.scrollHeight;"), 30, 0.01)
 
 
 def get_cookies_json(page: Page):

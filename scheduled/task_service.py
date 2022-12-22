@@ -99,22 +99,24 @@ def execute_task(task: TaskVO, phone_number: PhoneNumberVO):
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=app_config.headless)
         page = browser.new_page()
+        page.set_default_timeout(app_config.default_timeout)
 
         playwright_util.set_cookies(page, phone_number.cookies_json)
 
-        do_nothing.run(page)
+        if app_config.do_nothing_before_action:
+            do_nothing.run(page)
 
         params = json.loads(task.params_json)
         if task.action_type == ActionType.set_like_to_comment:
             url = "https://www.wildberries.ru/catalog/{}/detail.aspx?targetUrl=MI".format(task.article)
             name = params["name"]
-            date = params["date"]
-            set_like_to_comment.run(page, url, name, date, is_like=True)
+            text = params["text"]
+            set_like_to_comment.run(page, url=url, name=name, text=text, is_like=True)
         if task.action_type == ActionType.set_dislike_to_comment:
             url = "https://www.wildberries.ru/catalog/{}/detail.aspx?targetUrl=MI".format(task.article)
             name = params["name"]
-            date = params["date"]
-            set_like_to_comment.run(page, url, name, date, is_like=False)
+            text = params["date"]
+            set_like_to_comment.run(page, url=url, name=name, text=text, is_like=False)
         if task.action_type == ActionType.add_question:
             url = "https://www.wildberries.ru/catalog/{}/detail.aspx?targetUrl=MI".format(task.article)
             text_list = params["text_list"].split("\n")
