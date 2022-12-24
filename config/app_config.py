@@ -9,4 +9,5 @@ time_to_retry_in_hours_when_proxy_is_blocked = 1
 use_proxy = True
 do_nothing_before_action = False
 default_timeout = 180000
+auth_enabled = True
 # db_path = "/opt/wb.db"

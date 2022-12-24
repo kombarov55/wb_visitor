@@ -115,7 +115,7 @@ def execute_task(task: TaskVO, phone_number: PhoneNumberVO):
         if task.action_type == ActionType.set_dislike_to_comment:
             url = "https://www.wildberries.ru/catalog/{}/detail.aspx?targetUrl=MI".format(task.article)
             name = params["name"]
-            text = params["date"]
+            text = params["text"]
             set_like_to_comment.run(page, url=url, name=name, text=text, is_like=False)
         if task.action_type == ActionType.add_question:
             url = "https://www.wildberries.ru/catalog/{}/detail.aspx?targetUrl=MI".format(task.article)
