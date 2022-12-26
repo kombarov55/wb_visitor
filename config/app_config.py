@@ -1,8 +1,8 @@
 mock = False
 schedule_sleep_time_in_seconds = 3
 headless = True
-max_workers = 4
-max_workers_for_sms = 2
+max_workers = 8
+max_workers_for_sms = 4
 sms_activate_key = "44009Adc5f856793db4A6bAe6d7e37bd"
 unique_numbers = True
 time_to_retry_in_hours_when_proxy_is_blocked = 1
