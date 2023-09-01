@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 
 from config import database, app_config
 from model.proxy import ProxyVO
@@ -26,12 +27,12 @@ def save(session: Session, x: dict):
 
 def set_auth_blocked_datetime(id: int):
     with database.engine.connect() as con:
-        con.execute("update proxy set auth_blocked_datetime = now() where id = {}".format(id))
+        con.execute(text("update proxy set auth_blocked_datetime = now() where id = {}".format(id)))
 
 
 def get_random_proxy():
     with database.engine.connect() as con:
-        rows = con.execute("""select id, ip, username, password from proxy """)
+        rows = con.execute(text("""select id, ip, username, password from proxy """))
         result = []
         for row in rows:
             result.append(ProxyVO(
@@ -70,4 +71,4 @@ def update_proxy_after_failed_auth(session: Session, proxy: ProxyVO):
 
 def delete(id: int):
     with database.engine.connect() as con:
-        con.execute("delete from proxy where id={}".format(id))
+        con.execute(text("delete from proxy where id={}".format(id)))

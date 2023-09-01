@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 
 from config import database
 from model.phone_number import PhoneNumberVO, PhoneNumberStatus
@@ -17,7 +18,7 @@ def find_just_received(session: Session):
 
 def count_activating():
     with database.engine.connect() as con:
-        rows = con.execute("select count(*) from phone_number where status = 'ACTIVATING'")
+        rows = con.execute(text("select count(*) from phone_number where status = 'ACTIVATING'"))
         result = []
         for row in rows:
             result.append(row[0])
@@ -52,18 +53,18 @@ where pn.status = 'ACTIVATED'
 limit 1
     """.format(task.task_request_id, task.article)
     with database.engine.connect() as con:
-        rows = con.execute(sql)
+        rows = con.execute(text(sql))
         return extract_single_number(rows)
 
 
 def get_any_number():
     with database.engine.connect() as con:
-        rows = con.execute("""
+        rows = con.execute(text("""
 select pn.id, ext_id, number, cookies_json, status
 from phone_number pn
 where pn.status = 'ACTIVATED'
 limit 1        
-        """)
+        """))
         return extract_single_number(rows)
 
 
@@ -94,4 +95,4 @@ def set_status(session: Session, id: int, status: str):
 
 def set_all_activating_to_just_received():
     with database.engine.connect() as con:
-        con.execute("update phone_number set status='JUST_RECEIVED' where status = 'ACTIVATING'")
+        con.execute(text("update phone_number set status='JUST_RECEIVED' where status = 'ACTIVATING'"))

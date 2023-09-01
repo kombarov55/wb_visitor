@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 
 from config import database
 from model.task import TaskVO
@@ -19,12 +20,12 @@ def update(session: Session, vo: TaskVO):
 
 def set_all_running_to_failed():
     with database.engine.connect() as con:
-        con.execute("update task set status = 'FAILED' where status = 'RUNNING'")
+        con.execute(text("update task set status = 'FAILED' where status = 'RUNNING'"))
 
 
 def count_running_tasks():
     with database.engine.connect() as con:
-        rows = con.execute("select count(*) from task where status = 'RUNNING'")
+        rows = con.execute(text("select count(*) from task where status = 'RUNNING'"))
         result = []
         for row in rows:
             result.append(row[0])

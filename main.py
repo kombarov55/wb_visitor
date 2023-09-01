@@ -1,4 +1,3 @@
-# This is a sample Python script.
 import os
 
 from playwright.sync_api import Page
@@ -50,4 +49,4 @@ if __name__ == '__main__':
     #
     #     page.pause()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
