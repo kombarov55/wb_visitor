@@ -1,0 +1,10 @@
+from playwright.sync_api import sync_playwright
+from actions import receive_cookies_for_new_number 
+
+
+with sync_playwright() as p: 
+    browser = p.chromium.launch(headless=False)
+    page = browser.new_page()
+
+    cookies = receive_cookies_for_new_number.run_v2(page, '1', "79830791962")
+    
