@@ -30,6 +30,7 @@ def tick(executor: ThreadPoolExecutor):
                 x.status = PhoneNumberStatus.activating
                 x.status_change_datetime = datetime.datetime.now()
                 phone_number_repository.update(session, x)
+                print("set status = ACTIVATING and updated change datetime")
 
                 executor.submit(execute, x)
 
@@ -38,12 +39,14 @@ def execute(vo: PhoneNumberVO):
     session = database.session_local()
 
     vo = phone_number_repository.find_by_id(session, vo.id)
-    proxy = proxy_repository.get_random_proxy()
-    print("got random proxy ip={} uname={} pwd={}".format(proxy.ip, proxy.username, proxy.password))
+    print("found number {} status={}".format(vo.number, vo.status))
 
     with sync_playwright() as p:
         try:
             if app_config.use_proxy:
+                proxy = proxy_repository.get_random_proxy()
+                print("got random proxy ip={} uname={} pwd={}".format(proxy.ip, proxy.username, proxy.password))
+
                 browser = p.chromium.launch(
                     headless=app_config.headless,
                     proxy={
@@ -64,7 +67,8 @@ def execute(vo: PhoneNumberVO):
             vo.status_change_datetime = datetime.datetime.now()
             phone_number_repository.update(session, vo)
             print("saved cookies for number={}".format(vo.number))
-            proxy_repository.update_proxy_after_auth(session, proxy)
+            if app_config.use_proxy:
+                proxy_repository.update_proxy_after_auth(session, proxy)
 
             session.commit()
             session.close()

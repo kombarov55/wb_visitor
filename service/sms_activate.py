@@ -10,7 +10,7 @@ sa = SMSActivateAPI(app_config.sms_activate_key)
 
 def is_enough_money():
     s = sa.getBalance()["balance"]
-    money = int(s)
+    money = float(s)
     return money > 0
 
 
@@ -18,8 +18,9 @@ def receive_code(id: str, page: Page):
     total_secs_spent = 0
 
     while True:
+        print("attempting to receive code. total_secs_spent={}".format(total_secs_spent))
         rs = sa.getStatus(id=id)
-        print(rs)
+        print("ext_id={} received response from sms_activate: {}".format(id, rs))
 
         received = type(rs) == str and rs.split(":")[0] == "STATUS_OK"
 
@@ -34,6 +35,7 @@ def receive_code(id: str, page: Page):
             return code
 
         if total_secs_spent > 60 or page.get_by_text("Запросить код повторно").count() == 1:
+            print("{} secs spend and no number received/button to receive again appeared. clicking.")
             return None
 
 

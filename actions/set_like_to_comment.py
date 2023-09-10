@@ -6,6 +6,7 @@ from playwright_util import scroll_slowly_to_bottom, scroll_until_predicate
 
 
 def run(page: Page, url: str, name: str, text: str, is_like: bool):
+
     def log(s: str):
         print("set_like_to_comment({} {}) {}".format(name, text, s))
 
@@ -28,7 +29,8 @@ def run(page: Page, url: str, name: str, text: str, is_like: bool):
     log("feedback page loaded")
 
     log("start scrolling to comment")
-    found = scroll_until_predicate(page, lambda paige: is_comment_loaded(paige, text))
+    found = scroll_until_predicate(
+        page, lambda paige: is_comment_loaded(paige, text))
     log("end scrolling to bottom. comment found? {}".format(found))
 
     log("attempt to find comment")
@@ -54,7 +56,7 @@ def find_comment(page: Page, name: str, text: str):
     for i in range(0, comments.count()):
 
         comment = comments.nth(i)
-        comment_name = comment.locator("button.feedback__header").inner_text()
+        comment_name = comment.locator("p.feedback__header").inner_text()
         comment_text = comment.locator("p.feedback__text").inner_text()
         if name == comment_name and text == comment_text:
             return comment

@@ -8,7 +8,7 @@ from playwright.sync_api import sync_playwright
 from sqlalchemy.orm import Session
 
 import playwright_util
-from actions import set_like_to_comment, add_question, do_nothing, add_to_cart, remove_from_cart, add_to_favorites, \
+from actions import set_like_to_comment, add_report, add_question, do_nothing, add_to_cart, remove_from_cart, add_to_favorites, \
     remove_from_favorites
 from config import app_config, database
 from model.phone_number import PhoneNumberVO
@@ -107,16 +107,10 @@ def execute_task(task: TaskVO, phone_number: PhoneNumberVO):
             do_nothing.run(page)
 
         params = json.loads(task.params_json)
-        if task.action_type == ActionType.set_like_to_comment:
+        if task.action_type == ActionType.add_report:
             url = "https://www.wildberries.ru/catalog/{}/detail.aspx?targetUrl=MI".format(task.article)
-            name = params["name"]
             text = params["text"]
-            set_like_to_comment.run(page, url=url, name=name, text=text, is_like=True)
-        if task.action_type == ActionType.set_dislike_to_comment:
-            url = "https://www.wildberries.ru/catalog/{}/detail.aspx?targetUrl=MI".format(task.article)
-            name = params["name"]
-            text = params["text"]
-            set_like_to_comment.run(page, url=url, name=name, text=text, is_like=False)
+            add_report.run(page, task_id=task.id, product_url=url, comment_text=text)
         if task.action_type == ActionType.add_question:
             url = "https://www.wildberries.ru/catalog/{}/detail.aspx?targetUrl=MI".format(task.article)
             text_list = params["text_list"].split("\n")

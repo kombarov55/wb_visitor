@@ -4,11 +4,17 @@ from playwright.sync_api import Page
 
 from playwright_util import scroll_slowly_to_bottom, scroll_until_predicate
 
+from datetime import datetime
 
-def run(page: Page, product_url: str, comment_text: str):
-    
+from config import app_config
+
+
+def run(page: Page, task_id, product_url: str, comment_text: str):
     def log(s: str):
-        print("add report to comment ({}) {}".format(comment_text, s))
+        line = "{} add report to comment ({}) {}".format(str(datetime.now()), comment_text, s)
+        print(line)
+        with open("{}/{}.log".format(app_config.static_dir_path, str(task_id)), "a") as file:
+            file.write(line + "\n")
 
     page.goto(product_url)
     page.wait_for_load_state("networkidle")

@@ -15,6 +15,7 @@ class TaskVO(database.base):
     end_datetime = Column(DateTime)
     number_used = Column(String)
     status = Column(String)
+    error_msg = Column(String)
 
 
 class TaskStatus:
@@ -26,10 +27,9 @@ class TaskStatus:
 
 
 class ActionType:
+    add_report = "Пожаловаться на отзыв"
     add_question = "Задать вопрос"
     add_comparison_question = "Задать вопрос со сравнением"
-    set_like_to_comment = "Проставить лайки к комменту"
-    set_dislike_to_comment = "Проставить дизлайки к комменту"
     add_to_cart = "Добавить в корзину"
     add_to_cart_and_remove = "Добавить и убрать из корзины"
     remove_from_cart = "Убрать из корзины"

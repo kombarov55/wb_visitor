@@ -94,5 +94,4 @@ def download_img_base64(src: str, path: str):
     src = src[23:len(src)]
     img = Image.open(io.BytesIO(base64.decodebytes(bytes(src, "utf-8"))))
     img.save(path)
-    print("saved captcha to {}".format(path))
 
