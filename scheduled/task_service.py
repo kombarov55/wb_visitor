@@ -1,6 +1,5 @@
 import json
 import random
-import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
@@ -8,7 +7,7 @@ from playwright.sync_api import sync_playwright
 from sqlalchemy.orm import Session
 
 import playwright_util
-from actions import set_like_to_comment, add_report, add_question, do_nothing, add_to_cart, remove_from_cart, add_to_favorites, \
+from actions import add_report, add_question, do_nothing, add_to_cart, remove_from_cart, add_to_favorites, \
     remove_from_favorites
 from config import app_config, database
 from model.phone_number import PhoneNumberVO
@@ -29,7 +28,7 @@ def tick(executor: ThreadPoolExecutor):
         print("found {} tasks to execute".format(len(tasks_to_execute)))
 
     for task in tasks_to_execute:
-        future = executor.submit(wrap_process_task, task.id)
+        executor.submit(wrap_process_task, task.id)
 
     session.close()
 
@@ -91,6 +90,8 @@ def process_task(task_id: int):
         task.error_msg = str(e)
         task.end_datetime = datetime.now()
         task_repository.update(session, task)
+
+    task_repository.set_finished_status_if_group_is_ready(task.id)
 
     session.close()
 
