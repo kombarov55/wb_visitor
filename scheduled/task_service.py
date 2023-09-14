@@ -123,7 +123,7 @@ def execute_task(task: TaskVO, phone_number: PhoneNumberVO):
             remove_from_cart.run(page, task.article)
         if task.action_type == ActionType.add_to_favorites:
             url = "https://www.wildberries.ru/catalog/{}/detail.aspx?targetUrl=XS".format(task.article)
-            add_to_favorites.run(page, url)
+            add_to_favorites.run(page, url, task.id)
         if task.action_type == ActionType.remove_from_favorites:
             remove_from_favorites.run(page, task.article)
         return task
