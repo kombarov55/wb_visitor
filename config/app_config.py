@@ -11,5 +11,5 @@ do_nothing_before_action = False
 default_timeout = 180000
 auth_enabled = True
 tasks_enabled = True
-static_dir_path = "/home/nikolay/Documents/static/"
+static_dir_path = "/tmp/static/"
 # db_path = "/opt/wb.db"
