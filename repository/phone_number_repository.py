@@ -43,15 +43,16 @@ def update(session: Session, vo: PhoneNumberVO):
 
 
 def get_number_for_task(task: TaskVO):
-    sql = """
-select pn.id, ext_id, number, cookies_json, status
-from phone_number pn
-where pn.status = 'ACTIVATED'
-  and pn.number not in (select t.number_used
-                        from task t
-                        where t.task_request_id = {} and t.article like '{}' and t.number_used is not null)
-limit 1
-    """.format(task.task_request_id, task.article)
+#     sql = """
+# select pn.id, ext_id, number, cookies_json, status
+# from phone_number pn
+# where pn.status = 'ACTIVATED'
+#   and pn.number not in (select t.number_used
+#                         from task t
+#                         where t.task_request_id = {} and t.article like '{}' and t.number_used is not null)
+# limit 1
+#     """.format(task.task_request_id, task.article)
+    sql = "select pn.id, ext_id, number, cookies_json, status from phone_number pn where pn.ext_id = '1742364494'"
     with database.engine.connect() as con:
         rows = con.execute(text(sql))
         return extract_single_number(rows)

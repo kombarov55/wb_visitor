@@ -92,13 +92,11 @@ def on_captcha(page: Page, filename: str):
 def on_sms(page: Page, ext_id: str):
     print("receiving sms code for ext_id={}".format(ext_id))
 
-    page.pause()
-
     code = sms_activate.receive_code(ext_id, page)
     if code is None and page.get_by_text("Запросить код повторно").count() == 1:
         page.get_by_text("Запросить код повторно").nth(0).click()
         print("timeout on receive sms")
     else:
         el = page.locator(".login__code-group > input").first
-        el.type('102394', delay=100)
+        el.type(code, delay=100)
         print("receive sms success")
